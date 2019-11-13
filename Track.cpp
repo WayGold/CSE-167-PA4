@@ -12,8 +12,8 @@ Track::Track(){
     
     glm::vec3 paddleft = glm::vec3(2.0f, 0.0f, 0.0f);
     glm::vec3 paddright = glm::vec3(-2.0f, 0.0f, 0.0f);
-    glm::vec3 paddup = glm::vec3(0.0f, 10.0f, 0.0f);
-    glm::vec3 padddown = glm::vec3(0.0f, -10.0f, 0.0f);
+    glm::vec3 paddup = glm::vec3(0.0f, 5.0f, 0.0f);
+    glm::vec3 padddown = glm::vec3(0.0f, -5.0f, 0.0f);
     glm::vec3 padddep = glm::vec3(0.0f, 0.0f, -4.0f);
     
     c1.push_back(glm::vec3(15.0f, 8.0f, 0.0f));

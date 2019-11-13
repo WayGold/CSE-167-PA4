@@ -13,6 +13,20 @@ Curve::Curve(glm::vec3 in_p1, glm::vec3 in_p2, glm::vec3 in_p3, glm::vec3 in_p4)
     p2 = in_p2;
     p3 = in_p3;
     p4 = in_p4;
+    
+    // Sphere model loading
+    controlSphe = new Geometry("sphere");
+    anchor = new Geometry("sphere");
+    
+    controlSphe->loadModel("sphere.obj");
+    anchor->loadModel("sphere.obj");
+    anchor->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    // Translation to sphere position
+    c1 = new Transform("c1", glm::translate(p1) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
+    c2 = new Transform("c2", glm::translate(p2) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
+    c3 = new Transform("c3", glm::translate(p3) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
+    
     model = glm::mat4(1);
 }
 
@@ -25,15 +39,20 @@ void Curve::getPoints(){
     
     //loop 150 points
     points.push_back(p1);
+    a_points.push_back(p1);
     
     for(double i = 1.0; i <= 150; i++){
         // calculate the point with the Bernstein form
         glm::vec3 point = float(pow((i/150), 3.0f)) * a + float(pow((i/150), 2.0f)) * b + float(i/150) * c + d;
+        // store every point twice to draw continuous lines
         points.push_back(point);
         points.push_back(point);
+        // store every point once for animation
+        a_points.push_back(point);
     }
     
     points.push_back(p4);
+    a_points.push_back(p4);
     
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -64,7 +83,7 @@ void Curve::draw(glm::mat4 projection, glm::mat4 view, GLuint program){
     glUseProgram(program);
     // Bind to the VAO.
     glBindVertexArray(vao);
-    
+    glUniform3fv(glGetUniformLocation(program, "color"), 1, glm::value_ptr(glm::vec3(0,0,0)));
     glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -73,8 +92,23 @@ void Curve::draw(glm::mat4 projection, glm::mat4 view, GLuint program){
     glDrawArrays(GL_LINES, 0, points.size());
     // Unbind from the VAO.
     glBindVertexArray(0);
+    drawControl(program);
 }
 
 Curve::~Curve(){
+    delete controlSphe;
+}
+
+void Curve::drawControl(GLuint program){
+    root = new Transform("root", glm::mat4(1));
     
+    root->addChild(c1);
+    root->addChild(c2);
+    root->addChild(c3);
+    
+    c1->addChild(controlSphe);
+    c2->addChild(anchor);
+    c3->addChild(anchor);
+    
+    root->draw(program, glm::mat4(1));
 }
