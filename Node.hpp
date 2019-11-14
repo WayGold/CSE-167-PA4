@@ -24,6 +24,7 @@ protected:
     Node* parent;
 
 public:
+    virtual ~Node(){};
     virtual void draw(GLuint shaderProgram, glm::mat4 C) = 0;
     virtual void update(glm::mat4 C) = 0;
     

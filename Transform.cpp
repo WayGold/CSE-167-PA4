@@ -14,7 +14,7 @@ Transform::Transform(std::string name, glm::mat4 T){
 }
 
 Transform::~Transform(){
-    for(std::list<Node*>::iterator it = children.begin(); it != children.end(); ++it){
+    for(auto it = children.begin(); it != children.end(); ++it){
         if(*it != nullptr){
             //delete(*it);
         }

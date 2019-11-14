@@ -39,13 +39,14 @@ public:
     Geometry* controlSphe, *anchor;
     Transform* c1, *c2, *c3, *root;
     
+    Curve();
     Curve(glm::vec3 in_p1, glm::vec3 in_p2, glm::vec3 in_p3, glm::vec3 in_p4);
     ~Curve();
     
     void getPoints();
     void draw(glm::mat4 projection, glm::mat4 view, GLuint program);
     void drawControl(GLuint program);
-    void updatePt(glm::vec3 in_p1, glm::vec3 in_p2, glm::vec3 in_p3, glm::vec3 in_p4);
+    void updatePt(std::vector<glm::vec3> input);
 };
 
 #endif /* curve_hpp */

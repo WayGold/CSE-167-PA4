@@ -14,19 +14,6 @@ Curve::Curve(glm::vec3 in_p1, glm::vec3 in_p2, glm::vec3 in_p3, glm::vec3 in_p4)
     p3 = in_p3;
     p4 = in_p4;
     
-    // Sphere model loading
-    controlSphe = new Geometry("sphere");
-    anchor = new Geometry("sphere");
-    
-    controlSphe->loadModel("sphere.obj");
-    anchor->loadModel("sphere.obj");
-    anchor->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
-    
-    // Translation to sphere position
-    c1 = new Transform("c1", glm::translate(p1) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
-    c2 = new Transform("c2", glm::translate(p2) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
-    c3 = new Transform("c3", glm::translate(p3) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
-    
     model = glm::mat4(1);
 }
 
@@ -96,10 +83,23 @@ void Curve::draw(glm::mat4 projection, glm::mat4 view, GLuint program){
 }
 
 Curve::~Curve(){
-    delete controlSphe;
+    delete root;
 }
 
 void Curve::drawControl(GLuint program){
+    // Sphere model loading
+    controlSphe = new Geometry("sphere");
+    anchor = new Geometry("sphere");
+    
+    controlSphe->loadModel("sphere.obj");
+    anchor->loadModel("sphere.obj");
+    anchor->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    // Translation to sphere position
+    c1 = new Transform("c1", glm::translate(p1) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
+    c2 = new Transform("c2", glm::translate(p2) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
+    c3 = new Transform("c3", glm::translate(p3) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
+    
     root = new Transform("root", glm::mat4(1));
     
     root->addChild(c1);
@@ -111,4 +111,11 @@ void Curve::drawControl(GLuint program){
     c3->addChild(anchor);
     
     root->draw(program, glm::mat4(1));
+}
+
+void Curve::updatePt(std::vector<glm::vec3> input){
+    p1 = input[0];
+    p2 = input[1];
+    p3 = input[2];
+    p4 = input[3];
 }
