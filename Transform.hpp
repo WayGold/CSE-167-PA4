@@ -26,6 +26,7 @@ public:
     ~Transform();
     
     void addChild(Node* input);
+    void removeChild(Node* input);
     
     void draw(GLuint shaderProgram, glm::mat4 C);
     void update(glm::mat4 C);

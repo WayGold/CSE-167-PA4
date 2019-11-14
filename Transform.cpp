@@ -36,6 +36,10 @@ void Transform::addChild(Node* input){
     children.push_back(input);
 }
 
+void Transform::removeChild(Node* input){
+    children.remove(input);
+}
+
 void Transform::update(glm::mat4 C){
     this->T = C * T;
 }

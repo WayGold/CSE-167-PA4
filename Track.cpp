@@ -75,29 +75,49 @@ Track::Track(){
     track.push_back(cv6);
     track.push_back(cv7);
     track.push_back(cv8);
+    
+    current = new PointCloud("sphere.obj", 5.0f);
+    current->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
+    current->scale(glm::scale(glm::vec3(0.025f, 0.025f, 0.025f)));
+    current->translate(glm::translate(c1.at(0)));
+    
 }
 
 void Track::render(glm::mat4 projection, glm::mat4 view, GLuint program){
-    
+    // draw all curves in track
     for(auto it = std::begin(track); it!=std::end(track); ++it){
         (*it)->draw(projection, view, program);
     }
     // Get handles container
     load_handles();
     
-    // Draw Handles
+    // Use shader
     glUseProgram(program);
     // Bind to the VAO.
     glBindVertexArray(vao);
+    
+    // Pass in uniform vars
     glUniform3fv(glGetUniformLocation(program, "color"), 1, glm::value_ptr(glm::vec3(1,1,0)));
     glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1)));
     
-    // Draw points
+    // Draw Handles
     glDrawArrays(GL_LINES, 0, c_lines.size());
     // Unbind from the VAO.
     glBindVertexArray(0);
+    
+    // Location of uni vars for tracker ball
+    GLuint modelLoc = glGetUniformLocation(program, "model");
+    GLuint colorLoc = glGetUniformLocation(program, "color");
+    
+    // Specify the values of the uniform variables we are going to use.
+    glm::vec3 color = current->getColor();
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(current->getModel()));
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+    
+    // render the tracker ball
+    current->draw();
 }
 
 std::vector<Curve*> Track::getTrack(){
@@ -111,7 +131,10 @@ Track::~Track(){
 }
 
 void Track::load_handles(){
+    // clear vector first
+    c_lines.clear();
     
+    // Load in handle points
     c_lines.push_back(c8.at(2));
     c_lines.push_back(c1.at(1));
     c_lines.push_back(c1.at(2));
@@ -156,137 +179,198 @@ void Track::update(int tracker, glm::vec3 input){
     
     int i = ((tracker - 1) / 3) + 1;            // calculate which line segment we're on e.g tracker = 4 represent curve 2 head
     int j  = (tracker - 1) % 3;                 // calculate which index the point is on that line
+    std::cerr << "Tracker On Curve no.i = " << i  << ". Point index j = " << j << std::endl;
     
     switch (i) {
         case 1:
             switch (j) {
                 case 0:
                     c1[0] += input;
+                    c8[3] = c1[0];
+                    current->translate(glm::translate(c1[0]));
                     break;
                 case 1:
                     c1[1] += input;
+                    c8[2] -= input;
+                    current->translate(glm::translate(c1[1]));
                     break;
                 case 2:
                     c1[2] += input;
+                    c2[1] -= input;
+                    current->translate(glm::translate(c1[2]));
+                    break;
+                    
                 default:
                     break;
             }
-            track[0]->updatePt(c1);
             break;
             
         case 2:
             switch (j) {
                 case 0:
                     c2[0] += input;
+                    c1[3] = c2[0];
+                    current->translate(glm::translate(c2[0]));
                     break;
                 case 1:
                     c2[1] += input;
+                    c1[2] -= input;
+                    current->translate(glm::translate(c2[1]));
                     break;
                 case 2:
                     c2[2] += input;
+                    c3[1] -= input;
+                    current->translate(glm::translate(c2[2]));
+                    break;
+                    
                 default:
                     break;
             }
-            track[1]->updatePt(c2);
             break;
         
         case 3:
             switch (j) {
                 case 0:
                     c3[0] += input;
+                    c2[3] = c3[0];
+                    current->translate(glm::translate(c3[0]));
                     break;
+                    
                 case 1:
                     c3[1] += input;
+                    c2[2] -= input;
+                    current->translate(glm::translate(c3[1]));
                     break;
+                    
                 case 2:
                     c3[2] += input;
+                    c4[1] -= input;
+                    current->translate(glm::translate(c3[2]));
+                    break;
+                    
                 default:
                     break;
             }
-            track[2]->updatePt(c3);
             break;
             
         case 4:
             switch (j) {
                 case 0:
                     c4[0] += input;
+                    c3[3] = c4[0];
+                    current->translate(glm::translate(c4[0]));
                     break;
                 case 1:
                     c4[1] += input;
+                    c3[2] -= input;
+                    current->translate(glm::translate(c4[1]));
                     break;
                 case 2:
                     c4[2] += input;
+                    c5[1] -= input;
+                    current->translate(glm::translate(c4[2]));
+                    break;
+                    
                 default:
                     break;
             }
-            track[3]->updatePt(c4);
             break;
             
         case 5:
             switch (j) {
                 case 0:
                     c5[0] += input;
+                    c4[3] = c5[0];
+                    current->translate(glm::translate(c5[0]));
                     break;
                 case 1:
                     c5[1] += input;
+                    c4[2] -= input;
+                    current->translate(glm::translate(c5[1]));
                     break;
                 case 2:
                     c5[2] += input;
+                    c6[1] -= input;
+                    current->translate(glm::translate(c5[2]));
+                    break;
+                    
                 default:
                     break;
             }
-            track[4]->updatePt(c5);
             break;
         
         case 6:
             switch (j) {
                 case 0:
                     c6[0] += input;
+                    c5[3] = c6[0];
+                    current->translate(glm::translate(c6[0]));
                     break;
                 case 1:
                     c6[1] += input;
+                    c5[2] -= input;
+                    current->translate(glm::translate(c6[1]));
                     break;
                 case 2:
                     c6[2] += input;
+                    c7[1] -= input;
+                    current->translate(glm::translate(c6[2]));
                 default:
                     break;
             }
-            track[5]->updatePt(c6);
             break;
         
         case 7:
             switch (j) {
                 case 0:
                     c7[0] += input;
+                    c6[3] = c7[0];
+                    current->translate(glm::translate(c7[0]));
                     break;
                 case 1:
                     c7[1] += input;
+                    c6[2] -= input;
+                    current->translate(glm::translate(c7[1]));
                     break;
                 case 2:
                     c7[2] += input;
+                    c8[1] -= input;
+                    current->translate(glm::translate(c7[2]));
                 default:
                     break;
             }
-            track[6]->updatePt(c7);
             break;
         
         case 8:
             switch (j) {
                 case 0:
                     c8[0] += input;
+                    c7[3] = c8[0];
+                    current->translate(glm::translate(c8[0]));
                     break;
                 case 1:
                     c8[1] += input;
+                    c7[2] -= input;
+                    current->translate(glm::translate(c8[1]));
                     break;
                 case 2:
                     c8[2] += input;
+                    c1[1] -= input;
+                    current->translate(glm::translate(c8[2]));
                 default:
                     break;
             }
-            track[7]->updatePt(c8);
             break;
 
         default:
             break;
     }
+    track[0]->updatePt(c1);
+    track[1]->updatePt(c2);
+    track[2]->updatePt(c3);
+    track[3]->updatePt(c4);
+    track[4]->updatePt(c5);
+    track[5]->updatePt(c6);
+    track[6]->updatePt(c7);
+    track[7]->updatePt(c8);
 }

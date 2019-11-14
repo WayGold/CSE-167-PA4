@@ -13,6 +13,13 @@ Curve::Curve(glm::vec3 in_p1, glm::vec3 in_p2, glm::vec3 in_p3, glm::vec3 in_p4)
     p2 = in_p2;
     p3 = in_p3;
     p4 = in_p4;
+    // Sphere model loading
+    controlSphe = new Geometry("sphere");
+    anchor = new Geometry("sphere");
+    
+    controlSphe->loadModel("sphere.obj");
+    anchor->loadModel("sphere.obj");
+    anchor->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
     
     model = glm::mat4(1);
 }
@@ -87,13 +94,7 @@ Curve::~Curve(){
 }
 
 void Curve::drawControl(GLuint program){
-    // Sphere model loading
-    controlSphe = new Geometry("sphere");
-    anchor = new Geometry("sphere");
     
-    controlSphe->loadModel("sphere.obj");
-    anchor->loadModel("sphere.obj");
-    anchor->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
     
     // Translation to sphere position
     c1 = new Transform("c1", glm::translate(p1) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
@@ -114,6 +115,10 @@ void Curve::drawControl(GLuint program){
 }
 
 void Curve::updatePt(std::vector<glm::vec3> input){
+    std::cerr << "Updating with value: ";
+    for(auto i:input){
+        std::cerr << glm::to_string(i) << std::endl;
+    }
     p1 = input[0];
     p2 = input[1];
     p3 = input[2];
