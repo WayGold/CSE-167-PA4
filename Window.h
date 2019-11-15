@@ -31,9 +31,10 @@ public:
     static int event;
     static int flag_n;
     static int mode;
-    static int tracker;
+    static int tracker, indexTrack, ptTrack;
+    static bool indexflag, pause, board;
     static unsigned int cubemapTexture;
-    static double fov, near, far;
+    static double fov, near, far, pfd;
 	static const char* windowTitle;
     static Track* track;
 	static Cube* cube;

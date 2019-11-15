@@ -8,12 +8,19 @@ int Window::event;
 int Window::flag_n = 1;
 int Window::mode = 1;
 int Window::tracker = 1;
+int Window::indexTrack = 0;
+int Window::ptTrack = 0;
+
+bool Window::indexflag = false;
+bool Window::pause = true;
+bool Window::board = false;
 
 unsigned int Window::cubemapTexture;
 const char* Window::windowTitle = "GLFW Starter Project";
 double Window::fov = 60;
 double Window::near = 1.0;
 double Window::far = 1000.0;
+double Window::pfd;             // per frame distance
 // Objects to display.
 Cube * Window::cube;
 PointCloud* Window::sphere;
@@ -113,13 +120,13 @@ bool Window::initializeObjects()
     // Load cube map
     cubemapTexture = loadCubemap(faces);
 	// Create a cube of size 50.
-	cube = new Cube(50.0f);
+	cube = new Cube(1.0f);
     // init the track
     track = new Track();
     // initialize the roller coaster
     sphere = new PointCloud("sphere.obj", 5.0f);
     sphere->scale(glm::scale(glm::vec3(0.06f, 0.06f, 0.06f)));
-    sphere->translate(glm::translate(track->getTrack().at(1)->p1));
+    sphere->translate(glm::translate(track->getTrack().at(0)->p1));
     
     return true;
 }
@@ -211,14 +218,75 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
-//    // Outer loop to traverse throu the 8 curves
-//    for(auto it = std::begin(track->getTrack()); it!=std::end(track->getTrack()); ++it){
-//        // Inner loop to traverse throu all the points in a curve
-////        for(int i = 0; i < (*it)->points.size(); i++){
-////            sphere->update((*it)->points.at(i));
-////        }
-//        std::cerr << (*it)->a_points.size();
-//    }
+    if(pause)
+        return;
+    int i = indexTrack;
+    int j = ptTrack;
+    
+    indexflag = false;
+    pfd = glfwGetTime() * 0.0008;                                                  // Calculate per frame distance
+//  pfd = 0.001;
+    std::cerr << "Per Frame Distance = " << pfd << std::endl;
+    
+    while(pfd != 0){
+        for(; i < track->getTrack().size(); i++){                          // Each curve level
+            std::cerr << "In first loop with i = " << i << std::endl;
+            
+            for(; j < track->getTrack()[i]->a_points.size() - 1; j++){     // At curve i traverse all points of the curve
+                std::cerr << "In second loop with j = " << j << std::endl;
+                // Case when pfd is larger equal to distance between current point to next point
+                std::cerr << "distance from sphere to next point " << glm::distance(glm::vec3(sphere->getModel() * glm::vec4(0,0,0,1)), track->getTrack()[i]->a_points[j + 1]) << std::endl;
+                
+                if((pfd - glm::distance(glm::vec3(sphere->getModel() * glm::vec4(0,0,0,1)), track->getTrack()[i]->a_points[j + 1])) >= 0){
+                    sphere->translateTo(track->getTrack()[i]->a_points[j + 1]);
+                    pfd = pfd - glm::distance(glm::vec3(sphere->getModel() * glm::vec4(0,0,0,1)), track->getTrack()[i]->a_points[j + 1]);
+                    std::cerr << "Larger Equal" << std::endl;
+                    // on board perspective update
+                    if(board){
+                        eye = glm::vec3(sphere->getModel() * glm::vec4(0,0,0,1));
+                        center = track->getTrack()[i]->a_points[j + 1] - track->getTrack()[i]->a_points[j];
+                        view = glm::lookAt(eye, center, up);
+                        glUseProgram(skyprogram);
+                        viewLoc = glGetUniformLocation(skyprogram, "view");
+                        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+                    }
+                }
+                // Case when pfd is smaller
+                else{
+                    std::cerr << "Smaller" << std::endl;
+                    sphere->translate(glm::translate(glm::normalize(track->getTrack()[i]->a_points[j + 1] - track->getTrack()[i]->a_points[j]) * float(pfd)));
+                    // on board perspective update
+                    if(board){
+                        eye = glm::vec3(sphere->getModel() * glm::vec4(0,0,0,1));
+                        center = track->getTrack()[i]->a_points[j + 1] - track->getTrack()[i]->a_points[j];
+                        view = glm::lookAt(eye, center, up);
+                        glUseProgram(skyprogram);
+                        viewLoc = glGetUniformLocation(skyprogram, "view");
+                        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+                    }
+                    pfd = 0;            // 0 to exit loop
+                    std::cerr << "Assigning ptTrack with j = " << j << ". Current pfd = " << pfd << std::endl;
+                    ptTrack = j;        // Keep track of where we were in terms of index of points
+                    indexflag = true;   // Exit loop flag
+                    break;
+                }
+                std::cerr << "Assigning ptTrack with j = " << j << ". Current pfd = " << pfd << std::endl;
+                ptTrack = j;
+            }
+            std::cerr << "Assigning indexTrack with i = " << i << ". Current pfd = " << pfd << std::endl;
+            indexTrack = i;             // Where we were in terms of index of curves in track
+            if(indexflag){
+                
+                break;
+            }
+            // reset j
+            if(j == 151)
+                j = 0;
+            // reset i to -1. later will be added by 1 so that it goes to 0
+            if(i == 7)
+                i = -1;
+        }
+    }
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -251,25 +319,63 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
         
         case GLFW_KEY_Z:
+            if(mods == GLFW_MOD_SHIFT){
+                track->update(tracker, glm::vec3(0.0f, 0.0f, -0.5f));
+                break;
+            }
             track->update(tracker, glm::vec3(0.0f, 0.0f, 0.5f));
             break;
                 
         case GLFW_KEY_X:
+            if(mods == GLFW_MOD_SHIFT){
+                track->update(tracker, glm::vec3(-0.5f, 0.0f, 0.0f));
+                break;
+            }
             track->update(tracker, glm::vec3(0.5f, 0.0f, 0.0f));
             break;
                 
         case GLFW_KEY_Y:
+            if(mods == GLFW_MOD_SHIFT){
+                track->update(tracker, glm::vec3(0.0f, -0.5f, 0.0f));
+                break;
+            }
             track->update(tracker, glm::vec3(0.0f, 0.5f, 0.0f));
+            break;
+        
+        case GLFW_KEY_P:
+            pause = !pause;
+            break;
+        
+        case GLFW_KEY_C:
+            board = !board;
+            if(board == false){
+                eye = glm::vec3(0, 0, 20);
+                center = glm::vec3(0, 0, 0);
+                view = glm::lookAt(eye, center, up);
+                glUseProgram(skyprogram);
+                viewLoc = glGetUniformLocation(skyprogram, "view");
+                glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+            }
             break;
                 
         case GLFW_KEY_1:
-            tracker--;
+            if(tracker - 1 <= 0){
+                tracker = 23 + tracker;
+            }
+            else{
+                tracker--;
+            }
             std::cerr <<  "tracker: " << tracker << std::endl;
             track->update(tracker, glm::vec3(0.0f, 0.0f, 0.0f));
             break;
                 
         case GLFW_KEY_2:
-            tracker++;
+            if(tracker + 1 >= 25){
+                tracker = 25 - tracker;
+            }
+            else{
+                tracker++;
+            }
             std::cerr <<  "tracker: " << tracker << std::endl;
             track->update(tracker, glm::vec3(0.0f, 0.0f, 0.0f));
             break;

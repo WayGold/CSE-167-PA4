@@ -348,6 +348,6 @@ void PointCloud::draw(){
 }
 
 void PointCloud::translateTo(glm::vec3 input){
-    model = glm::translate(input) * glm::mat4(1);
+    model = glm::translate(input) * glm::scale(glm::vec3(0.25, 0.25, 0.25)) * glm::mat4(1);
 }
 
