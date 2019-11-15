@@ -80,7 +80,6 @@ Track::Track(){
     current->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
     current->scale(glm::scale(glm::vec3(0.025f, 0.025f, 0.025f)));
     current->translate(glm::translate(c1.at(0)));
-    
 }
 
 void Track::render(glm::mat4 projection, glm::mat4 view, GLuint program){
@@ -116,7 +115,7 @@ void Track::render(glm::mat4 projection, glm::mat4 view, GLuint program){
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(current->getModel()));
     glUniform3fv(colorLoc, 1, glm::value_ptr(color));
     
-    // render the tracker ball
+    // render the tracker ball last
     current->draw();
 }
 
@@ -179,7 +178,7 @@ void Track::update(int tracker, glm::vec3 input){
     
     int i = ((tracker - 1) / 3) + 1;            // calculate which line segment we're on e.g tracker = 4 represent curve 2 head
     int j  = (tracker - 1) % 3;                 // calculate which index the point is on that line
-    std::cerr << "Tracker On Curve no.i = " << i  << ". Point index j = " << j << std::endl;
+//    std::cerr << "Tracker On Curve no.i = " << i  << ". Point index j = " << j << std::endl;
     
     switch (i) {
         case 1:
@@ -187,17 +186,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c1[0] += input;
                     c8[3] = c1[0];
-                    current->translate(glm::translate(c1[0]));
+                    c1[1] += input;
+                    c8[2] += input;
+                    current->translateTo(c1[0]);
                     break;
                 case 1:
                     c1[1] += input;
                     c8[2] -= input;
-                    current->translate(glm::translate(c1[1]));
+                    current->translateTo(c1[1]);
                     break;
                 case 2:
                     c1[2] += input;
                     c2[1] -= input;
-                    current->translate(glm::translate(c1[2]));
+                    current->translateTo(c1[2]);
                     break;
                     
                 default:
@@ -210,17 +211,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c2[0] += input;
                     c1[3] = c2[0];
-                    current->translate(glm::translate(c2[0]));
+                    c2[1] += input;
+                    c1[2] += input;
+                    current->translateTo(c2[0]);
                     break;
                 case 1:
                     c2[1] += input;
                     c1[2] -= input;
-                    current->translate(glm::translate(c2[1]));
+                    current->translateTo(c2[1]);
                     break;
                 case 2:
                     c2[2] += input;
                     c3[1] -= input;
-                    current->translate(glm::translate(c2[2]));
+                    current->translateTo(c2[2]);
                     break;
                     
                 default:
@@ -233,19 +236,21 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c3[0] += input;
                     c2[3] = c3[0];
-                    current->translate(glm::translate(c3[0]));
+                    c3[1] += input;
+                    c2[2] += input;
+                    current->translateTo(c3[0]);
                     break;
                     
                 case 1:
                     c3[1] += input;
                     c2[2] -= input;
-                    current->translate(glm::translate(c3[1]));
+                    current->translateTo(c3[1]);
                     break;
                     
                 case 2:
                     c3[2] += input;
                     c4[1] -= input;
-                    current->translate(glm::translate(c3[2]));
+                    current->translateTo(c3[2]);
                     break;
                     
                 default:
@@ -258,17 +263,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c4[0] += input;
                     c3[3] = c4[0];
-                    current->translate(glm::translate(c4[0]));
+                    c4[1] += input;
+                    c3[2] += input;
+                    current->translateTo(c4[0]);
                     break;
                 case 1:
                     c4[1] += input;
                     c3[2] -= input;
-                    current->translate(glm::translate(c4[1]));
+                    current->translateTo(c4[1]);
                     break;
                 case 2:
                     c4[2] += input;
                     c5[1] -= input;
-                    current->translate(glm::translate(c4[2]));
+                    current->translateTo(c4[2]);
                     break;
                     
                 default:
@@ -281,17 +288,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c5[0] += input;
                     c4[3] = c5[0];
-                    current->translate(glm::translate(c5[0]));
+                    c5[1] += input;
+                    c4[2] += input;
+                    current->translateTo(c5[0]);
                     break;
                 case 1:
                     c5[1] += input;
                     c4[2] -= input;
-                    current->translate(glm::translate(c5[1]));
+                    current->translateTo(c5[1]);
                     break;
                 case 2:
                     c5[2] += input;
                     c6[1] -= input;
-                    current->translate(glm::translate(c5[2]));
+                    current->translateTo(c5[2]);
                     break;
                     
                 default:
@@ -304,17 +313,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c6[0] += input;
                     c5[3] = c6[0];
-                    current->translate(glm::translate(c6[0]));
+                    c6[1] += input;
+                    c5[2] += input;
+                    current->translateTo(c6[0]);
                     break;
                 case 1:
                     c6[1] += input;
                     c5[2] -= input;
-                    current->translate(glm::translate(c6[1]));
+                    current->translateTo(c6[1]);
                     break;
                 case 2:
                     c6[2] += input;
                     c7[1] -= input;
-                    current->translate(glm::translate(c6[2]));
+                    current->translateTo(c6[2]);
                 default:
                     break;
             }
@@ -325,17 +336,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c7[0] += input;
                     c6[3] = c7[0];
-                    current->translate(glm::translate(c7[0]));
+                    c7[1] += input;
+                    c6[2] += input;
+                    current->translateTo(c7[0]);
                     break;
                 case 1:
                     c7[1] += input;
                     c6[2] -= input;
-                    current->translate(glm::translate(c7[1]));
+                    current->translateTo(c7[1]);
                     break;
                 case 2:
                     c7[2] += input;
                     c8[1] -= input;
-                    current->translate(glm::translate(c7[2]));
+                    current->translateTo(c7[2]);
                 default:
                     break;
             }
@@ -346,17 +359,19 @@ void Track::update(int tracker, glm::vec3 input){
                 case 0:
                     c8[0] += input;
                     c7[3] = c8[0];
-                    current->translate(glm::translate(c8[0]));
+                    c8[1] += input;
+                    c7[2] += input;
+                    current->translateTo(c8[0]);
                     break;
                 case 1:
                     c8[1] += input;
                     c7[2] -= input;
-                    current->translate(glm::translate(c8[1]));
+                    current->translateTo(c8[1]);
                     break;
                 case 2:
                     c8[2] += input;
                     c1[1] -= input;
-                    current->translate(glm::translate(c8[2]));
+                    current->translateTo(c8[2]);
                 default:
                     break;
             }
@@ -373,4 +388,5 @@ void Track::update(int tracker, glm::vec3 input){
     track[5]->updatePt(c6);
     track[6]->updatePt(c7);
     track[7]->updatePt(c8);
+//    std::cerr << "tracker ball model at: " << glm::to_string(current->getModel()) << std::endl;
 }

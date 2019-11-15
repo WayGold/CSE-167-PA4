@@ -7,6 +7,8 @@ int Window::height;
 int Window::event;
 int Window::flag_n = 1;
 int Window::mode = 1;
+int Window::tracker = 1;
+
 unsigned int Window::cubemapTexture;
 const char* Window::windowTitle = "GLFW Starter Project";
 double Window::fov = 60;
@@ -117,7 +119,7 @@ bool Window::initializeObjects()
     // initialize the roller coaster
     sphere = new PointCloud("sphere.obj", 5.0f);
     sphere->scale(glm::scale(glm::vec3(0.06f, 0.06f, 0.06f)));
-    sphere->translate(glm::translate(track->getTrack().at(0)->p1));
+    sphere->translate(glm::translate(track->getTrack().at(1)->p1));
     
     return true;
 }
@@ -209,8 +211,14 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {
-	// Perform any updates as necessary. 
-	
+//    // Outer loop to traverse throu the 8 curves
+//    for(auto it = std::begin(track->getTrack()); it!=std::end(track->getTrack()); ++it){
+//        // Inner loop to traverse throu all the points in a curve
+////        for(int i = 0; i < (*it)->points.size(); i++){
+////            sphere->update((*it)->points.at(i));
+////        }
+//        std::cerr << (*it)->a_points.size();
+//    }
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -241,6 +249,30 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);				
 			break;
+        
+        case GLFW_KEY_Z:
+            track->update(tracker, glm::vec3(0.0f, 0.0f, 0.5f));
+            break;
+                
+        case GLFW_KEY_X:
+            track->update(tracker, glm::vec3(0.5f, 0.0f, 0.0f));
+            break;
+                
+        case GLFW_KEY_Y:
+            track->update(tracker, glm::vec3(0.0f, 0.5f, 0.0f));
+            break;
+                
+        case GLFW_KEY_1:
+            tracker--;
+            std::cerr <<  "tracker: " << tracker << std::endl;
+            track->update(tracker, glm::vec3(0.0f, 0.0f, 0.0f));
+            break;
+                
+        case GLFW_KEY_2:
+            tracker++;
+            std::cerr <<  "tracker: " << tracker << std::endl;
+            track->update(tracker, glm::vec3(0.0f, 0.0f, 0.0f));
+            break;
                 
 		default:
 			break;

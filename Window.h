@@ -31,6 +31,7 @@ public:
     static int event;
     static int flag_n;
     static int mode;
+    static int tracker;
     static unsigned int cubemapTexture;
     static double fov, near, far;
 	static const char* windowTitle;

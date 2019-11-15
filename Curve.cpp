@@ -20,7 +20,7 @@ Curve::Curve(glm::vec3 in_p1, glm::vec3 in_p2, glm::vec3 in_p3, glm::vec3 in_p4)
     controlSphe->loadModel("sphere.obj");
     anchor->loadModel("sphere.obj");
     anchor->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
-    
+    length = glm::distance(p1, p4);
     model = glm::mat4(1);
 }
 
@@ -30,7 +30,8 @@ void Curve::getPoints(){
     glm::vec3 b = 3.0f * p1 - 6.0f * p2 + 3.0f * p3;
     glm::vec3 c = -3.0f * p1 + 3.0f * p2;
     glm::vec3 d = p1;
-    
+    points.clear();
+    a_points.clear();
     //loop 150 points
     points.push_back(p1);
     a_points.push_back(p1);
@@ -95,7 +96,6 @@ Curve::~Curve(){
 
 void Curve::drawControl(GLuint program){
     
-    
     // Translation to sphere position
     c1 = new Transform("c1", glm::translate(p1) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
     c2 = new Transform("c2", glm::translate(p2) * glm::scale(glm::vec3(0.01f, 0.01f, 0.01f)));
@@ -115,12 +115,13 @@ void Curve::drawControl(GLuint program){
 }
 
 void Curve::updatePt(std::vector<glm::vec3> input){
-    std::cerr << "Updating with value: ";
-    for(auto i:input){
-        std::cerr << glm::to_string(i) << std::endl;
-    }
+//    std::cerr << "Updating the curve with value: " << std::endl;
+//    for(auto i:input){
+//        std::cerr << glm::to_string(i) << std::endl;
+//    }
     p1 = input[0];
     p2 = input[1];
     p3 = input[2];
     p4 = input[3];
+    length = glm::distance(p1, p4);
 }

@@ -227,6 +227,11 @@ void PointCloud::update()
 	// Spin the cube by 1 degree.
 }
 
+// update for supporting the animation of roller coaster
+void PointCloud::update(glm::vec3 point){
+    model = glm::translate(point) * model;
+}
+
 void PointCloud::updatePointSize(GLfloat size) 
 {
 	/*
@@ -336,10 +341,13 @@ void PointCloud::set_shininess(float input){
 void PointCloud::draw(){
     // Bind to the VAO.
     glBindVertexArray(vao);
-    // Set point size.
-    glPointSize(pointSize);
     // Draw points
-    glDrawArrays(GL_POINTS, 0, points.size());
+    glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
     // Unbind from the VAO.
     glBindVertexArray(0);
 }
+
+void PointCloud::translateTo(glm::vec3 input){
+    model = glm::translate(input) * glm::mat4(1);
+}
+

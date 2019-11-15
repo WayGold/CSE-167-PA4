@@ -20,6 +20,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Object.h"
+#include "Curve.hpp"
 
 class PointCloud : public Object
 {
@@ -43,8 +44,11 @@ public:
 	~PointCloud();
 
 	void draw();
+    void draw(GLuint program);
     void draw(glm::mat4 projection, glm::mat4 view, glm::vec3 eye, GLuint program, unsigned int cubemapTexture);
+    
 	void update();
+    void update(glm::vec3 point);
 
 	void updatePointSize(GLfloat size);
 	void spin(float deg);
@@ -62,6 +66,7 @@ public:
     void set_diffuse(glm::vec3 input);
     void set_specular(glm::vec3 input);
     void set_shininess(float input);
+    void translateTo(glm::vec3 input);
     
     GLfloat get_pointsize(){
         return pointSize;

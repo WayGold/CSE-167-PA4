@@ -35,6 +35,7 @@ private:
     
 public:
     glm::vec3 p1, p2, p3, p4;
+    float length;
     std::vector<glm::vec3> a_points;
     std::vector<glm::vec3> points;
     Geometry* controlSphe, *anchor;
